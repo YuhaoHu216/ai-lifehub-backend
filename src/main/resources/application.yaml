@@ -1,7 +1,6 @@
 server:
   port: ${server.port}
 spring:
-
   application:
     name: ai-lifehub
   profiles:
@@ -24,6 +23,19 @@ spring:
           time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+  mail:
+    host: smtp.qq.com   # 邮件服务器地址
+    port: 465           # SMTP 端口（QQ: 465/587, 163: 465/994）
+    username: 2913278634@qq.com  # 发送邮箱
+    password: lfwsvpgrodzqdhcb  # 邮箱的授权码（不是登录密码）
+    protocol: smtps
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
 mybatis-plus:
   type-aliases-package: space.huyuhao.po # 别名扫描包
 logging:

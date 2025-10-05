@@ -1,0 +1,47 @@
+package space.huyuhao.serverce.impl;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import space.huyuhao.serverce.UserService;
+import org.thymeleaf.context.Context;
+
+import java.io.UnsupportedEncodingException;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine; // Thymeleaf 引擎
+
+    // 发送邮件验证码
+    public void sendEmail(String email) throws MessagingException, UnsupportedEncodingException {
+        // 设置动态参数
+        Context context = new Context();
+        context.setVariable("username", "牢孙");
+        context.setVariable("code", 335577);
+        context.setVariable("expire", 5);
+
+        // 渲染 HTML
+        String htmlContent = templateEngine.process("emailTemplate", context);
+
+        // 发送邮件
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//        helper.setFrom(new InternetAddress("2913278634@qq.com", "智慧农业创新实验室", "UTF-8"));
+        helper.setFrom("智慧农业创新实验室 <2913278634@qq.com>");
+        helper.setTo(email);
+        helper.setSubject("欢迎加入智慧农业创新实验室");
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+}
