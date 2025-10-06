@@ -36,8 +36,10 @@ spring:
           auth: true
           ssl:
             enable: true
-mybatis-plus:
-  type-aliases-package: space.huyuhao.po # 别名扫描包
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
 logging:
   level:
     space.huyuhao: debug

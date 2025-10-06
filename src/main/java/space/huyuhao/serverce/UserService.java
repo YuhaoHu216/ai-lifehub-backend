@@ -1,7 +1,10 @@
 package space.huyuhao.serverce;
 
+
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
+import space.huyuhao.dto.LoginDTO;
+import space.huyuhao.po.User;
 import space.huyuhao.vo.Result;
 
 import java.io.UnsupportedEncodingException;
@@ -13,4 +16,6 @@ public interface UserService {
 
     // 发送手机验证码(模拟)
     Result sendPhone(String phone);
+    // 用户登录
+    Result login(LoginDTO loginDTO);
 }

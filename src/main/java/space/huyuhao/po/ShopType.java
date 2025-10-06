@@ -1,8 +1,6 @@
 package space.huyuhao.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,9 +11,7 @@ import java.time.LocalDateTime;
 
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
-@TableName("tb_shop_type")
+
 public class ShopType implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,7 +19,6 @@ public class ShopType implements Serializable {
     /**
      * 主键
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

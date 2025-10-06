@@ -1,9 +1,6 @@
 package space.huyuhao.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -13,9 +10,6 @@ import java.time.LocalDateTime;
 
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
-@TableName("tb_voucher")
 public class Voucher implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,7 +17,6 @@ public class Voucher implements Serializable {
     /**
      * 主键
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -68,19 +61,16 @@ public class Voucher implements Serializable {
     /**
      * 库存
      */
-    @TableField(exist = false)
     private Integer stock;
 
     /**
      * 生效时间
      */
-    @TableField(exist = false)
     private LocalDateTime beginTime;
 
     /**
      * 失效时间
      */
-    @TableField(exist = false)
     private LocalDateTime endTime;
 
     /**
