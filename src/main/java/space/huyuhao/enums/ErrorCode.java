@@ -1,5 +1,8 @@
 package space.huyuhao.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
     USER_NOT_FOUND(4001, "用户不存在"),
     INVALID_TOKEN(4002, "Token无效"),
@@ -14,7 +17,5 @@ public enum ErrorCode {
         this.message = message;
     }
 
-    public int getCode() { return code; }
-    public String getMessage() { return message; }
 }
 
