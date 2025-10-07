@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
         String tokenKey = LOGIN_USER_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
         // 设置token有效期
-        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.SECONDS);
 
         // 8.返回token
         return Result.success(token);
