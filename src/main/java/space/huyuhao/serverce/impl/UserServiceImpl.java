@@ -1,19 +1,21 @@
 package space.huyuhao.serverce.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
-import space.huyuhao.constant.UserConstant;
 import space.huyuhao.dto.LoginDTO;
+import space.huyuhao.dto.UserDTO;
 import space.huyuhao.enums.ErrorCode;
 import space.huyuhao.exception.UserException;
 import space.huyuhao.mapper.UserMapper;
@@ -24,13 +26,16 @@ import space.huyuhao.utils.UserHolder;
 import space.huyuhao.vo.Result;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static space.huyuhao.constant.UserConstant.CODE_TTL;
-import static space.huyuhao.constant.UserConstant.USER_NICKNAME_PREFIX;
+import static space.huyuhao.constant.RedisConstants.*;
+import static space.huyuhao.constant.UserConstants.USER_NICKNAME_PREFIX;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -57,12 +62,12 @@ public class UserServiceImpl implements UserService {
             throw new UserException(ErrorCode.SEND_EMAIL_FREQUENT);
         }
         // 将验证码存入redis
-        stringRedisTemplate.opsForValue().set("code:" + email, String.valueOf(code), CODE_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set("code:" + email, String.valueOf(code), LOGIN_CODE_TTL, TimeUnit.MINUTES);
         // 设置动态参数
         Context context = new Context();
         context.setVariable("username", "牢孙");
         context.setVariable("code", code);
-        context.setVariable("expire", CODE_TTL);
+        context.setVariable("expire", LOGIN_CODE_TTL);
 
         // 渲染 HTML
         String htmlContent = templateEngine.process("emailTemplate", context);
@@ -86,9 +91,10 @@ public class UserServiceImpl implements UserService {
         // 生成验证码
 //        String code = RandomUtil.randomNumbers(6);
         String code = "111111";
+        log.info("发送的验证码为：{}",code);
         // TODO 发送验证码逻辑
         // 存储验证码
-        stringRedisTemplate.opsForValue().set("code:"+phone,code,CODE_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set("code:"+phone,code,LOGIN_CODE_TTL, TimeUnit.MINUTES);
         return Result.success("验证码发送成功");
     }
 
@@ -114,7 +120,23 @@ public class UserServiceImpl implements UserService {
             userMapper.insertUser(user);
         }
         // 存在就保存用户信息
-        UserHolder.saveUser(user);
-        return Result.success();
+
+        // 保存用户信息到 redis中
+        // 随机生成token，作为登录令牌
+        String token = UUID.randomUUID().toString(true);  //uuid导入hutool的
+        // 将User对象转为HashMap存储
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),
+                CopyOptions.create()
+                        .setIgnoreNullValue(true)
+                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString()));  //将字段值修改成String
+        // 存储
+        String tokenKey = LOGIN_USER_KEY + token;
+        stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
+        // 设置token有效期
+        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
+
+        // 8.返回token
+        return Result.success(token);
     }
 }
