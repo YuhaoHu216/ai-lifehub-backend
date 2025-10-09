@@ -24,4 +24,11 @@ public class ShopController {
         log.info("查询店铺信息，id:{}", id);
         return shopService.queryShop(id);
     }
+
+    // 根据id修改店铺信息
+    @PostMapping("/update")
+    public Result updateShop(@RequestBody Shop shop) {
+        log.info("修改店铺信息:{}", shop);
+        return shopService.updateShop(shop);
+    }
 }

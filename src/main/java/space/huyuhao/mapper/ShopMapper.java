@@ -2,6 +2,7 @@ package space.huyuhao.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import space.huyuhao.dto.ShopDTO;
 import space.huyuhao.po.Shop;
 
@@ -16,4 +17,11 @@ public interface ShopMapper {
      */
     @Select("select * from tb_shop where id = #{id}")
     Shop selectShop(int id);
+
+    /**
+     * 修改店铺信息
+     * @param shop 要修改成的信息
+     */
+    @Update("update tb_shop set name=#{name},type_id=#{typeId} where id = #{id}")
+    void update(Shop shop);
 }

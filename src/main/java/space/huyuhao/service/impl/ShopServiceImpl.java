@@ -12,8 +12,15 @@ import space.huyuhao.po.Shop;
 import space.huyuhao.service.ShopService;
 import space.huyuhao.vo.Result;
 
-import static space.huyuhao.constant.RedisConstants.CACHE_SHOP_KEY;
+import java.util.concurrent.TimeUnit;
 
+import static space.huyuhao.constant.RedisConstants.CACHE_SHOP_KEY;
+import static space.huyuhao.constant.RedisConstants.CACHE_SHOP_TTL;
+
+/**
+ * @author hyh
+ * @since 2025-10
+ */
 @Service
 public class ShopServiceImpl implements ShopService {
 
@@ -47,7 +54,25 @@ public class ShopServiceImpl implements ShopService {
             return Result.error("店铺不存在");
         }
         // 4.将数据写入缓存
-        stringRedisTemplate.opsForValue().set(cacheKey,JSONUtil.toJsonStr(shop));
+        stringRedisTemplate.opsForValue().set(cacheKey,JSONUtil.toJsonStr(shop),CACHE_SHOP_TTL, TimeUnit.MINUTES);
         return Result.success(shop);
+    }
+
+    /**
+     * 更新店铺信息
+     * @param shop 要修改成的信息
+     * @return 修改结果
+     */
+    public Result updateShop(Shop shop) {
+        Long id = shop.getId();
+        if(id == null){
+            return Result.error("店铺不存在");
+        }
+        // 先修改数据库
+        shopMapper.update(shop);
+        // 再删除缓存
+        String cacheKey = CACHE_SHOP_KEY + id;
+        stringRedisTemplate.delete(cacheKey);
+        return Result.success();
     }
 }

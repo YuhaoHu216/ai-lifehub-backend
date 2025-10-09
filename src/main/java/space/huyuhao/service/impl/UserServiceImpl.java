@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import space.huyuhao.dto.LoginDTO;
 import space.huyuhao.dto.UserDTO;
-import space.huyuhao.enums.ErrorCode;
+import space.huyuhao.enums.ErrorCodeEnum;
 import space.huyuhao.exception.UserException;
 import space.huyuhao.mapper.UserMapper;
 import space.huyuhao.po.User;
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
         int code = r.nextInt(100000,999999);
         // 判断验证码是否存在
         if(stringRedisTemplate.hasKey("code:"+email)){
-            throw new UserException(ErrorCode.SEND_EMAIL_FREQUENT);
+            throw new UserException(ErrorCodeEnum.SEND_EMAIL_FREQUENT);
         }
         // 将验证码存入redis
         stringRedisTemplate.opsForValue().set("code:" + email, String.valueOf(code), LOGIN_CODE_TTL, TimeUnit.MINUTES);

@@ -3,7 +3,7 @@ package space.huyuhao.enums;
 import lombok.Getter;
 
 @Getter
-public enum ErrorCode {
+public enum ErrorCodeEnum {
     USER_NOT_FOUND(4001, "用户不存在"),
     INVALID_TOKEN(4002, "Token无效"),
     PERMISSION_DENIED(4003, "没有权限"),
@@ -12,7 +12,7 @@ public enum ErrorCode {
     private final int code;
     private final String message;
 
-    ErrorCode(int code, String message) {
+    ErrorCodeEnum(int code, String message) {
         this.code = code;
         this.message = message;
     }
