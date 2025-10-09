@@ -1,4 +1,4 @@
-package space.huyuhao.serverce.impl;
+package space.huyuhao.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
@@ -20,9 +20,8 @@ import space.huyuhao.enums.ErrorCode;
 import space.huyuhao.exception.UserException;
 import space.huyuhao.mapper.UserMapper;
 import space.huyuhao.po.User;
-import space.huyuhao.serverce.UserService;
+import space.huyuhao.service.UserService;
 import org.thymeleaf.context.Context;
-import space.huyuhao.utils.UserHolder;
 import space.huyuhao.vo.Result;
 
 import java.io.UnsupportedEncodingException;

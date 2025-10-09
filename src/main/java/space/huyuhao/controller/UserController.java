@@ -4,7 +4,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import space.huyuhao.dto.LoginDTO;
-import space.huyuhao.serverce.UserService;
+import space.huyuhao.service.UserService;
 import space.huyuhao.vo.Result;
 
 import java.io.UnsupportedEncodingException;

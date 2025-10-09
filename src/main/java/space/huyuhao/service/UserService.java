@@ -1,10 +1,9 @@
-package space.huyuhao.serverce;
+package space.huyuhao.service;
 
 
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 import space.huyuhao.dto.LoginDTO;
-import space.huyuhao.po.User;
 import space.huyuhao.vo.Result;
 
 import java.io.UnsupportedEncodingException;
