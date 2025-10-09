@@ -16,7 +16,7 @@ public interface ShopService {
      * @param id 店铺id
      * @return 店铺信息
      */
-    Result queryShop(int id);
+    Result queryShop(Long id);
 
     /**
      * 修改店铺信息

@@ -38,7 +38,7 @@ public class ShopServiceImpl implements ShopService {
      * @param id 店铺id
      * @return 店铺信息
      */
-    public Result queryShop(int id) {
+    public Result queryShop(Long id) {
 
         // 2. 查询缓存
         String cacheKey = CACHE_SHOP_KEY + id;
@@ -57,6 +57,32 @@ public class ShopServiceImpl implements ShopService {
         stringRedisTemplate.opsForValue().set(cacheKey,JSONUtil.toJsonStr(shop),CACHE_SHOP_TTL, TimeUnit.MINUTES);
         return Result.success(shop);
     }
+    // TODO 布隆过滤器解决缓存穿透问题
+    // 封装用缓存空串解决缓存穿透的逻辑
+    public Shop queryWithPassThrough(Long id){
+        // 2. 查询缓存
+        String cacheKey = CACHE_SHOP_KEY + id;
+        String shopJson = stringRedisTemplate.opsForValue().get(cacheKey);
+        // 命中返回,为有效数据(不为null且不为空串)
+        if(StrUtil.isNotBlank(shopJson)){
+            return JSONUtil.toBean(shopJson, Shop.class);
+        }
+        // 判断是不是我们之前存的空串
+        if(shopJson.isEmpty()){
+            // 返回错误信息
+            return null;
+        }
+        // 3. 查询数据库
+        Shop shop = shopMapper.selectShop(id);
+        if(shop == null){
+            // 空值将空串写入redis
+            stringRedisTemplate.opsForValue().set(cacheKey,"",60,TimeUnit.MINUTES);
+        }
+        // 4.将数据写入缓存
+        stringRedisTemplate.opsForValue().set(cacheKey,JSONUtil.toJsonStr(shop),CACHE_SHOP_TTL, TimeUnit.MINUTES);
+        return shop;
+    }
+
 
     /**
      * 更新店铺信息

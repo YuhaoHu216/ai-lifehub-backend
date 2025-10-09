@@ -16,7 +16,7 @@ public interface ShopMapper {
      * @return 店铺实体
      */
     @Select("select * from tb_shop where id = #{id}")
-    Shop selectShop(int id);
+    Shop selectShop(Long id);
 
     /**
      * 修改店铺信息
