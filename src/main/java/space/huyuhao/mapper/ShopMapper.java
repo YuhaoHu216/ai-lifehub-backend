@@ -3,10 +3,7 @@ package space.huyuhao.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import space.huyuhao.dto.ShopDTO;
 import space.huyuhao.po.Shop;
-
-import java.util.List;
 
 @Mapper
 public interface ShopMapper {
@@ -16,7 +13,7 @@ public interface ShopMapper {
      * @return 店铺实体
      */
     @Select("select * from tb_shop where id = #{id}")
-    Shop selectShop(Long id);
+    Shop selectShopById(Long id);
 
     /**
      * 修改店铺信息

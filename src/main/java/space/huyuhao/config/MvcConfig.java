@@ -18,14 +18,15 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // 登录拦截器
         registry.addInterceptor(new LoginInterceptor())
-                .excludePathPatterns(  //拦截部分请求
+                .excludePathPatterns(  //放行部分请求
 //                        "/shop/**",
                         "/voucher/**",
                         "/shop-type/**",
                         "/upload/**",
                         "/blog/hot",
                         "/user/code",
-                        "/user/login"
+                        "/user/login",
+                        "/user/phone"
                 ).order(1);  //后执行的拦截器
         //token刷新的拦截器
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0); //用来拦截所有请求,并且先执行
