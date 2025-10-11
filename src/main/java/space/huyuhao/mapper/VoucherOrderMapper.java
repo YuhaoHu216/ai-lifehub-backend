@@ -26,7 +26,7 @@ public interface VoucherOrderMapper  {
     @Select("select * from tb_seckill_voucher where voucher_id = #{voucherId}")
     SeckillVoucher selectById(Long voucherId);
     // 扣减库存
-//    @Update("update tb_seckill_voucher set stock = stock - 1 where voucher_id = #{voucherId}")
+    @Update("update tb_seckill_voucher set stock = stock - 1 where voucher_id = #{voucherId}")
     boolean updateStock(Long voucherId);
     // 保存订单
 //    @Insert("insert into tb_voucher_order(id, user_id, voucher_id, pay_type, status, create_time, pay_time, use_time, refund_time, update_time) " +
