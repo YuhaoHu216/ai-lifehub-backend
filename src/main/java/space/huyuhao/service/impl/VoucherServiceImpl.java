@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import space.huyuhao.mapper.VoucherMapper;
 import space.huyuhao.po.SeckillVoucher;
 import space.huyuhao.po.Voucher;
-import space.huyuhao.service.IVoucherService;
+import space.huyuhao.service.VoucherService;
 import space.huyuhao.vo.Result;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import static space.huyuhao.constant.RedisConstants.SECKILL_STOCK_KEY;
  * @since 2021-12-22
  */
 @Service
-public class VoucherServiceImpl implements IVoucherService {
+public class VoucherServiceImpl implements VoucherService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;

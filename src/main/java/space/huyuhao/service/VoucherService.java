@@ -13,7 +13,7 @@ import space.huyuhao.vo.Result;
  * @since 2021-12-22
  */
 @Service
-public interface IVoucherService {
+public interface VoucherService {
 
     // 查询店铺的优惠卷列表
     Result queryVoucherOfShop(Long shopId);

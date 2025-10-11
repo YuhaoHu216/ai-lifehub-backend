@@ -4,7 +4,7 @@ package space.huyuhao.controller;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import space.huyuhao.po.Voucher;
-import space.huyuhao.service.IVoucherService;
+import space.huyuhao.service.VoucherService;
 import space.huyuhao.vo.Result;
 
 
@@ -21,7 +21,7 @@ import space.huyuhao.vo.Result;
 public class VoucherController {
 
     @Resource
-    private IVoucherService voucherService;
+    private VoucherService voucherService;
 
     /**
      * 新增普通券
