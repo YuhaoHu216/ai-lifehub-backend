@@ -20,12 +20,12 @@ public class Result implements Serializable {
 
     /** 成功（无数据） */
     public static Result success() {
-        return new Result(200, "操作成功", null);
+        return new Result(200, "success", null);
     }
 
     /** 成功（带数据） */
     public static  Result success(Object data) {
-        return new Result(200, "操作成功", data);
+        return new Result(200, "success", data);
     }
     /** 成功（带消息） */
     public static Result success(String message) {
@@ -39,7 +39,7 @@ public class Result implements Serializable {
 
     /** 失败（默认消息） */
     public static  Result error() {
-        return new Result(500, "操作失败", null);
+        return new Result(500, "fail", null);
     }
 
     /** 失败（自定义消息） */

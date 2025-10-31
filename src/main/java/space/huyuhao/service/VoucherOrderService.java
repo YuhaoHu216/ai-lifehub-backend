@@ -18,5 +18,5 @@ public interface VoucherOrderService {
     Result seckillVoucher(Long voucherId);
 
     // 为代理创建的方法
-//    void createVoucherOrder(VoucherOrder voucherOrder);
+    Result createVoucherOrder(Long voucherId);
 }
