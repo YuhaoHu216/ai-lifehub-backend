@@ -121,8 +121,9 @@ public class UserServiceImpl implements UserService {
         // 存在就保存用户信息
 
         // 保存用户信息到 redis中
-        // 随机生成token，作为登录令牌
-        String token = UUID.randomUUID().toString(true);  //uuid导入hutool的
+        // 随机生成token，作为登录令牌 TODO 这里为了开发方便固定一个字符串
+//        String token = UUID.randomUUID().toString(true);  //uuid导入hutool的
+        String token = "huyuhao";  //uuid导入hutool的
         // 将User对象转为HashMap存储
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),

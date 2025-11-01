@@ -21,6 +21,7 @@ import space.huyuhao.po.VoucherOrder;
 import space.huyuhao.service.VoucherOrderService;
 import space.huyuhao.service.VoucherService;
 import space.huyuhao.utils.RedisIdWorker;
+import space.huyuhao.utils.SimpleRedisLock;
 import space.huyuhao.utils.UserHolder;
 import space.huyuhao.vo.Result;
 
@@ -52,6 +53,9 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
     @Resource
     private RedisIdWorker redisIdWorker;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
 
     @Override
     public Result seckillVoucher(Long voucherId) {
@@ -74,11 +78,31 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
             return Result.error("库存不足！");
         }
         Long userId = UserHolder.getUser().getId();
-        synchronized (userId.toString().intern()){
-            // 获取代理对象
+        // 单体锁
+//        synchronized (userId.toString().intern()){
+//            // 获取代理对象
+//            VoucherOrderService proxy = (VoucherOrderService) AopContext.currentProxy();
+//            return proxy.createVoucherOrder(voucherId);
+//        }
+
+        // 使用Redis分布式锁
+        // 创建一个锁
+        SimpleRedisLock lock = new SimpleRedisLock("order" + userId,stringRedisTemplate);
+        boolean isLock = lock.tryLock(1200);
+
+        if(!isLock){
+            return Result.error("不允许重复下单");
+        }
+        // 能获得锁就进入创建订单的流程
+        try{
+            //获取代理对象(事务)
             VoucherOrderService proxy = (VoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherOrder(voucherId);
+        }finally {
+            // 释放锁
+            lock.unLock();
         }
+
     }
     // 判断是否购买和创建订单逻辑
     @Transactional
