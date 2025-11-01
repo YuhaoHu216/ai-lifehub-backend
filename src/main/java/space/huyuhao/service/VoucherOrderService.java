@@ -9,8 +9,8 @@ import space.huyuhao.vo.Result;
  *  服务类
  * </p>
  *
- * @author 虎哥
- * @since 2021-12-22
+ * @author hyh
+ * @since 2025-11-01
  */
 public interface VoucherOrderService {
 
