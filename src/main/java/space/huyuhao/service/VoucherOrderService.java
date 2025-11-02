@@ -15,7 +15,7 @@ import space.huyuhao.vo.Result;
 public interface VoucherOrderService {
 
     // 购买秒杀优惠卷
-    Result seckillVoucher(Long voucherId);
+    Result seckillVoucher(Long voucherId) throws InterruptedException;
 
     // 为代理创建的方法
     Result createVoucherOrder(Long voucherId);

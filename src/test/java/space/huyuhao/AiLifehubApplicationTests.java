@@ -2,8 +2,11 @@ package space.huyuhao;
 
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import space.huyuhao.config.RedissonConfig;
 import space.huyuhao.service.impl.ShopServiceImpl;
 import space.huyuhao.utils.RedisIdWorker;
 
@@ -12,6 +15,7 @@ import java.time.ZoneOffset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class AiLifehubApplicationTests {
@@ -84,6 +88,29 @@ class AiLifehubApplicationTests {
         long end = System.currentTimeMillis();
         System.out.println("time = " + (end - begin));
     }
+
+    /**
+     * 测试Redisson分布式锁
+     */
+    @Resource
+    private RedissonClient redissonClient;
+
+    @Test
+    void testRedisson() throws Exception{
+        RLock lock = redissonClient.getLock("anylock");
+        // 参数分别是获取锁的最大时间(期间会重试),自动释放锁的时间和时间单位
+        boolean isLock = lock.tryLock(1,10, TimeUnit.SECONDS);
+        if(isLock){
+            try{
+                System.out.println("执行业务");
+            }finally {
+                lock.unlock();
+            }
+        }
+    }
+
+
+
 
 
 
