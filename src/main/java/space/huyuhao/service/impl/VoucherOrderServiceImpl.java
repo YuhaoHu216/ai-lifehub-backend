@@ -1,36 +1,23 @@
 package space.huyuhao.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.aop.framework.AopContext;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import space.huyuhao.mapper.VoucherOrderMapper;
-import space.huyuhao.po.SeckillVoucher;
 import space.huyuhao.po.VoucherOrder;
 import space.huyuhao.service.VoucherOrderService;
-import space.huyuhao.service.VoucherService;
 import space.huyuhao.utils.RedisIdWorker;
-import space.huyuhao.utils.SimpleRedisLock;
 import space.huyuhao.utils.UserHolder;
 import space.huyuhao.vo.Result;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
 
 /**
  * <p>
@@ -56,63 +43,42 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
     @Resource
     private  RedissonClient redissonClient;
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+
+    // 加载脚本
+    private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
+    static {
+        SECKILL_SCRIPT = new DefaultRedisScript<>();
+        SECKILL_SCRIPT.setLocation(new ClassPathResource("seckill.lua"));
+        SECKILL_SCRIPT.setResultType(Long.class);
+    }
 
     @Override
-    public Result seckillVoucher(Long voucherId) throws InterruptedException {
-        // 1.查询优惠券
-        SeckillVoucher voucher = voucherOrderMapper.selectById(voucherId);
-        // 2.判断秒杀是否开始
-        if (voucher.getBeginTime().isAfter(LocalDateTime.now())) {
-            // 尚未开始
-            return Result.error("秒杀尚未开始！");
-        }
-        // 3.判断秒杀是否已经结束
-        if (voucher.getEndTime().isBefore(LocalDateTime.now())) {
-            // 尚未开始
-            return Result.error("秒杀已经结束！");
-        }
-
-        // 4.判断库存是否充足
-        if (voucher.getStock() < 1) {
-            // 库存不足
-            return Result.error("库存不足！");
-        }
+    public Result seckillVoucher(Long voucherId) {
+        //获取用户
         Long userId = UserHolder.getUser().getId();
-        /*
-            单体锁
-         */
-//        synchronized (userId.toString().intern()){
-//            // 获取代理对象
-//            VoucherOrderService proxy = (VoucherOrderService) AopContext.currentProxy();
-//            return proxy.createVoucherOrder(voucherId);
-//        }
-
-        /*
-         使用Redis分布式锁
-         */
-        // 创建一个锁
-//        SimpleRedisLock lock = new SimpleRedisLock("order" + userId,stringRedisTemplate);
-//        boolean isLock = lock.tryLock(1200);
-
-        /*
-            使用Redisson分布式锁
-         */
-
-        RLock lock = redissonClient.getLock("lock:order" + userId);
-        boolean isLock = lock.tryLock(1,10,TimeUnit.SECONDS);
-        if(!isLock){
-            return Result.error("不允许重复下单");
+        long orderId = redisIdWorker.nextId("order");
+        // 1.执行lua脚本
+        Long result = stringRedisTemplate.execute(
+                SECKILL_SCRIPT,
+                Collections.emptyList(),
+                voucherId.toString(), userId.toString(), String.valueOf(orderId)
+        );
+        int r = result.intValue();
+        // 2.判断结果是否为0
+        if (r != 0) {
+            // 2.1.不为0 ，代表没有购买资格
+            return Result.error(r == 1 ? "库存不足" : "不能重复下单");
         }
-        // 能获得锁就进入创建订单的流程
-        try{
-            //获取代理对象(事务)
-            VoucherOrderService proxy = (VoucherOrderService) AopContext.currentProxy();
-            return proxy.createVoucherOrder(voucherId);
-        }finally {
-            // 释放锁
-            lock.unlock();
-        }
-
+        // 如果到这里说明扣库存成功，可以异步下单
+        // 发送消息到 RabbitMQ
+        rabbitTemplate.convertAndSend(
+                "order.exchange",  // 交换机名
+                "order.create",    // 路由键
+                voucherId       // 消息体
+        );
+        return Result.success(orderId);
     }
     // 判断是否购买和创建订单逻辑
     @Transactional

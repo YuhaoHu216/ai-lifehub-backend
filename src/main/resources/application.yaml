@@ -36,6 +36,12 @@ spring:
           auth: true
           ssl:
             enable: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 15672
+    virtual-host: lifehub
+    username: guest
+    password: guest
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
