@@ -1,6 +1,7 @@
 package space.huyuhao.service;
 
 
+import space.huyuhao.po.OrderMessage;
 import space.huyuhao.po.VoucherOrder;
 import space.huyuhao.vo.Result;
 
@@ -18,5 +19,5 @@ public interface VoucherOrderService {
     Result seckillVoucher(Long voucherId) throws InterruptedException;
 
     // 为代理创建的方法
-    Result createVoucherOrder(Long voucherId);
+    Result createVoucherOrder(OrderMessage orderMessage);
 }

@@ -11,6 +11,8 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import space.huyuhao.mapper.VoucherOrderMapper;
+import space.huyuhao.mq.OrderProducer;
+import space.huyuhao.po.OrderMessage;
 import space.huyuhao.po.VoucherOrder;
 import space.huyuhao.service.VoucherOrderService;
 import space.huyuhao.utils.RedisIdWorker;
@@ -46,6 +48,9 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
+    @Resource
+    private OrderProducer orderProducer;
+
     // 加载脚本
     private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
     static {
@@ -72,20 +77,17 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
             return Result.error(r == 1 ? "库存不足" : "不能重复下单");
         }
         // 如果到这里说明扣库存成功，可以异步下单
-        // 发送消息到 RabbitMQ
-        rabbitTemplate.convertAndSend(
-                "order.exchange",  // 交换机名
-                "order.create",    // 路由键
-                voucherId       // 消息体
-        );
+        OrderMessage orderMessage = new OrderMessage(userId,voucherId,orderId);
+        // 用封装的生产者发送消息到 RabbitMQ
+        orderProducer.sendOrderMessage(orderMessage);
         return Result.success(orderId);
     }
     // 判断是否购买和创建订单逻辑
     @Transactional
-    public Result createVoucherOrder(Long voucherId){
-        // 获取用户id
-        Long userId = UserHolder.getUser().getId();
-
+    public Result createVoucherOrder(OrderMessage orderMessage){
+            // 因为异步处理的原因所以不用threadlocal,在方法里传递userId
+            Long userId = orderMessage.getUserId();
+            Long voucherId = orderMessage.getVoucherId();
             int count = voucherOrderMapper.getOrderCountByUserId(userId);
             if(count > 0){
                 return Result.error("用户已经购买一次");
@@ -98,11 +100,10 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
             }
             //6.创建订单
             VoucherOrder voucherOrder = new VoucherOrder();
-            // 6.1.订单id
-            long orderId = redisIdWorker.nextId("order");
+            // 使用传递的orderId
+            long orderId = orderMessage.getOrderId();
             voucherOrder.setId(orderId);
             // 6.2.用户id
-            userId = UserHolder.getUser().getId();
             voucherOrder.setUserId(userId);
             // 6.3.代金券id
             voucherOrder.setVoucherId(voucherId);
