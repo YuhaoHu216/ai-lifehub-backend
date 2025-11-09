@@ -17,6 +17,7 @@ import space.huyuhao.service.ShopService;
 import space.huyuhao.utils.RedisData;
 import space.huyuhao.vo.Result;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +49,9 @@ public class ShopServiceImpl implements ShopService {
     public Result queryShop(Long id) {
 
 //        Shop shop = queryWithPassThrough(id);
-        Shop shop = queryWithMutex(id);
+        // 直接查询数据库(用于测没有缓存的QPS)
+        Shop shop = shopMapper.selectShopById(id);
+//        Shop shop = queryWithMutex(id);
         return Result.success(shop);
     }
     // TODO 布隆过滤器解决缓存穿透问题
