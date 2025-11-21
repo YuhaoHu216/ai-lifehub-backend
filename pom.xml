@@ -11,6 +11,7 @@
     <groupId>space.huyuhao</groupId>
     <artifactId>ai-lifehub</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>ai-lifehub</name>
     <description>ai-lifehub</description>
     <url/>
@@ -20,6 +21,9 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>shop-service</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
