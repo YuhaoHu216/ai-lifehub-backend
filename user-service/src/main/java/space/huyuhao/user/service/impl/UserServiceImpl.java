@@ -1,0 +1,141 @@
+package space.huyuhao.user.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.RandomUtil;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import space.huyuhao.user.dto.LoginDTO;
+import space.huyuhao.user.dto.UserDTO;
+import space.huyuhao.user.enums.ErrorCodeEnum;
+import space.huyuhao.user.exception.MyException;
+import space.huyuhao.user.mapper.UserMapper;
+import space.huyuhao.user.po.User;
+import space.huyuhao.user.service.UserService;
+import space.huyuhao.user.vo.Result;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import static space.huyuhao.user.constants.RedisConstants.*;
+import static space.huyuhao.user.constants.UserConstants.USER_NICKNAME_PREFIX;
+
+
+@Service
+@Slf4j
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine; // Thymeleaf 引擎
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    // 发送邮件验证码
+    public void sendEmail(String email) throws MessagingException, UnsupportedEncodingException {
+
+        // TODO 邮箱的校验
+        // 生成验证码
+        Random r = new Random();
+        int code = r.nextInt(100000,999999);
+        // 判断验证码是否存在
+        if(stringRedisTemplate.hasKey("code:"+email)){
+            throw new MyException(ErrorCodeEnum.SEND_EMAIL_FREQUENT);
+        }
+        // 将验证码存入redis
+        stringRedisTemplate.opsForValue().set("code:" + email, String.valueOf(code), LOGIN_CODE_TTL, TimeUnit.MINUTES);
+        // 设置动态参数
+        Context context = new Context();
+        context.setVariable("username", "牢孙");
+        context.setVariable("code", code);
+        context.setVariable("expire", LOGIN_CODE_TTL);
+
+        // 渲染 HTML
+        String htmlContent = templateEngine.process("emailTemplate", context);
+
+        // 发送邮件
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//        helper.setFrom(new InternetAddress("2913278634@qq.com", "智慧农业创新实验室", "UTF-8"));
+        helper.setFrom("智慧农业创新实验室 <2913278634@qq.com>");
+        helper.setTo(email);
+        helper.setSubject("欢迎加入智慧农业创新实验室");
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+
+    // 模拟发送手机验证码
+    @Override
+    public Result sendPhone(String phone) {
+        // TODO 手机号校验
+        // 生成验证码
+//        String code = RandomUtil.randomNumbers(6);
+        String code = "111111";
+        log.info("发送的验证码为：{}",code);
+        // TODO 发送验证码逻辑
+        // 存储验证码
+        stringRedisTemplate.opsForValue().set("code:"+phone,code,LOGIN_CODE_TTL, TimeUnit.MINUTES);
+        return Result.success("验证码发送成功");
+    }
+
+    // 用户登录
+    public Result login(LoginDTO loginDTO) {
+        // TODO 校验手机号
+        String phone = loginDTO.getPhone();
+
+        // 获取redis中的验证码
+        String cacheCode = stringRedisTemplate.opsForValue().get("code:"+phone);
+        // 校验验证码
+        if (cacheCode == null || !cacheCode.equals(loginDTO.getCode()) ){
+             return Result.error("验证码错误");
+        }
+
+        // 根据手机号查询用户
+        User user = userMapper.getUser(phone);
+        // 不存在就创建账号
+        if(user == null){
+            user = new User();
+            user.setPhone(phone);
+            user.setNickName(USER_NICKNAME_PREFIX + RandomUtil.randomString(6));
+            userMapper.insertUser(user);
+        }
+        // 存在就保存用户信息
+
+        // 保存用户信息到 redis中
+        // 随机生成token，作为登录令牌 TODO 这里为了开发方便固定一个字符串
+//        String token = UUID.randomUUID().toString(true);  //uuid导入hutool的
+        String token = "huyuhao";  //uuid导入hutool的
+        // 将User对象转为HashMap存储
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),
+                CopyOptions.create()
+                        .setIgnoreNullValue(true)
+                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString()));  //将字段值修改成String
+        // 存储
+        String tokenKey = LOGIN_USER_KEY + token;
+        stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
+        // 设置token有效期
+        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.SECONDS);
+
+        // 8.返回token
+        return Result.success(token);
+    }
+}

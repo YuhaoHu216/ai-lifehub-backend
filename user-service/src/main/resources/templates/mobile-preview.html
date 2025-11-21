@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端邮件模板预览</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .preview-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .device-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .device {
+            background: #333;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .device-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .device-screen {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .tablet {
+            width: 400px;
+        }
+        
+        .tablet .device-screen {
+            width: 360px;
+            height: 480px;
+        }
+        
+        .mobile {
+            width: 280px;
+        }
+        
+        .mobile .device-screen {
+            width: 240px;
+            height: 400px;
+        }
+        
+        .small-mobile {
+            width: 200px;
+        }
+        
+        .small-mobile .device-screen {
+            width: 160px;
+            height: 280px;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform-origin: top left;
+        }
+        
+        .tablet iframe {
+            transform: scale(0.47);
+            width: 768px;
+            height: 1024px;
+        }
+        
+        .mobile iframe {
+            transform: scale(0.4);
+            width: 600px;
+            height: 1000px;
+        }
+        
+        .small-mobile iframe {
+            transform: scale(0.27);
+            width: 600px;
+            height: 1000px;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <h1 class="preview-title">📱 智慧农业邮件模板 - 移动端适配预览</h1>
+        
+        <div class="device-preview">
+            <div class="device tablet">
+                <div class="device-label">平板设备 (768px)</div>
+                <div class="device-screen">
+                    <iframe src="emailTemplate.html"></iframe>
+                </div>
+            </div>
+            
+            <div class="device mobile">
+                <div class="device-label">手机设备 (600px)</div>
+                <div class="device-screen">
+                    <iframe src="emailTemplate.html"></iframe>
+                </div>
+            </div>
+            
+            <div class="device small-mobile">
+                <div class="device-label">小屏手机 (360px)</div>
+                <div class="device-screen">
+                    <iframe src="emailTemplate.html"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; text-align: center; color: #666;">
+            <p>📋 移动端适配特性：</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>🎯 多断点响应式设计 (768px, 600px, 480px, 360px)</li>
+                <li>📏 自适应字体大小和间距</li>
+                <li>🎨 优化的触摸友好界面</li>
+                <li>📱 完美适配各种移动设备</li>
+                <li>⚡ 保持视觉效果和动画</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

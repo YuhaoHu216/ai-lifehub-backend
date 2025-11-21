@@ -1,0 +1,13 @@
+db:
+  mysql:
+    driver: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ai_lifehub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 111111
+  redis:
+    host: 127.0.0.1
+    #    password:
+    port: 6379
+
+server:
+  port: 8081

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>智慧农业创新实验室 - 邮箱验证码</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .email-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        .email-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(76, 175, 80, 0.8); }
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+            line-height: 1.3;
+        }
+        
+        .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: glow 2s infinite;
+        }
+        
+        .icon svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        
+        .username {
+            color: #4CAF50;
+            font-weight: 700;
+        }
+        
+        .code-section {
+            background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: slideRight 2s infinite;
+        }
+        
+        @keyframes slideRight {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .code-label {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .verification-code {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px 25px;
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .expire-info {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 25px;
+            color: #856404;
+            font-size: 14px;
+        }
+        
+        .expire-time {
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .security-tip {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #2E7D32;
+            font-size: 13px;
+            text-align: left;
+        }
+        
+        .welcome-message {
+            background: rgba(76, 175, 80, 0.05);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: #2E7D32;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        /* 平板设备适配 */
+        @media (max-width: 768px) {
+            .email-container {
+                padding: 35px 25px;
+                margin: 15px;
+                max-width: 90%;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .greeting {
+                font-size: 17px;
+            }
+            
+            .verification-code {
+                font-size: 30px;
+                letter-spacing: 7px;
+                padding: 14px 22px;
+            }
+            
+            .welcome-message {
+                font-size: 14px;
+                padding: 18px;
+            }
+        }
+        
+        /* 手机设备适配 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-container {
+                padding: 25px 15px;
+                margin: 5px;
+                max-width: 100%;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+                line-height: 1.4;
+            }
+            
+            .icon {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 15px;
+            }
+            
+            .icon svg {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .greeting {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+            
+            .welcome-message {
+                font-size: 13px;
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+            
+            .code-section {
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 12px;
+            }
+            
+            .code-label {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .verification-code {
+                font-size: 26px;
+                letter-spacing: 5px;
+                padding: 12px 18px;
+                border-radius: 8px;
+            }
+            
+            .expire-info {
+                padding: 12px;
+                font-size: 13px;
+                margin-top: 20px;
+            }
+            
+            .security-tip {
+                padding: 12px;
+                font-size: 12px;
+                margin-top: 15px;
+                border-radius: 6px;
+            }
+            
+            .footer {
+                margin-top: 25px;
+                padding-top: 15px;
+                font-size: 11px;
+            }
+        }
+        
+        /* 小屏手机适配 */
+        @media (max-width: 480px) {
+            .email-container {
+                padding: 20px 12px;
+                border-radius: 12px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .greeting {
+                font-size: 15px;
+            }
+            
+            .welcome-message {
+                font-size: 12px;
+                padding: 12px;
+            }
+            
+            .verification-code {
+                font-size: 24px;
+                letter-spacing: 4px;
+                padding: 10px 15px;
+            }
+            
+            .code-section {
+                padding: 18px;
+            }
+            
+            .expire-info, .security-tip {
+                padding: 10px;
+                font-size: 11px;
+            }
+        }
+        
+        /* 超小屏设备适配 */
+        @media (max-width: 360px) {
+            .email-container {
+                padding: 15px 10px;
+            }
+            
+            .header h1 {
+                font-size: 15px;
+            }
+            
+            .icon {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .icon svg {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .verification-code {
+                font-size: 22px;
+                letter-spacing: 3px;
+                padding: 8px 12px;
+            }
+            
+            .welcome-message {
+                font-size: 11px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,2A3,3 0 0,1 15,5V7H20A1,1 0 0,1 21,8V19A1,1 0 0,1 20,20H4A1,1 0 0,1 3,19V8A1,1 0 0,1 4,7H9V5A3,3 0 0,1 12,2M12,4A1,1 0 0,0 11,5V7H13V5A1,1 0 0,0 12,4Z"/>
+                </svg>
+            </div>
+            <h1>智慧农业创新实验室</h1>
+        </div>
+        
+        <div class="welcome-message">
+            🌱 欢迎加入智慧农业创新实验室！<br>
+            我们致力于运用先进技术推动农业现代化发展，为可持续农业贡献力量。
+        </div>
+        
+        <div class="greeting">
+            您好，<span class="username" th:text="${username}">用户</span>！
+        </div>
+        
+        <div class="code-section">
+            <div class="code-label">您的验证码是</div>
+            <div class="verification-code" th:text="${code}">123456</div>
+        </div>
+        
+        <div class="expire-info">
+            ⏰ 验证码有效时间：<span class="expire-time" th:text="${expire}">5</span> 分钟
+        </div>
+        
+        <div class="security-tip">
+            <strong>🔒 安全提示：</strong><br>
+            • 请勿将验证码告知他人<br>
+            • 验证码仅用于本次验证，请及时使用<br>
+            • 如非本人操作，请忽略此邮件
+        </div>
+        
+        <div class="footer">
+            此邮件由智慧农业创新实验室系统自动发送，请勿回复<br>
+            © 2024 智慧农业创新实验室. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
