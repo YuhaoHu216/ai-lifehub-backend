@@ -24,6 +24,7 @@
     <modules>
         <module>shop-service</module>
         <module>user-service</module>
+        <module>voucher-service</module>
     </modules>
     <scm>
         <connection/>
