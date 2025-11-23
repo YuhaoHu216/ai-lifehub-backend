@@ -35,7 +35,7 @@ public class UserController {
         return userService.sendPhone(phone);
     }
 
-    // 登录
+    // 本项目登录
     @PostMapping("/login")
     public Result login(@RequestBody LoginDTO loginDTO){
         log.info("登录用户:{}",loginDTO);
