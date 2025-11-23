@@ -61,8 +61,9 @@ public class VoucherOrderServiceImpl implements VoucherOrderService {
 
     @Override
     public Result seckillVoucher(Long voucherId) {
-        //获取用户
-        Long userId = UserHolder.getUser().getId();
+        //获取用户 TODO 这里为了测试先写死
+//        Long userId = UserHolder.getUser().getId();
+        Long userId = 1010L;
         long orderId = redisIdWorker.nextId("order");
         // 1.执行lua脚本
         Long result = stringRedisTemplate.execute(

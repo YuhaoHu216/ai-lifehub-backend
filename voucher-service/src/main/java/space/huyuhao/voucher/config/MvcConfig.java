@@ -26,7 +26,10 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/blog/hot",
                         "/user/code",
                         "/user/login",
-                        "/user/phone"
+                        "/user/phone",
+                        // TODO 临时放行
+                        "/voucher/**",
+                        "/voucher-order/**"
                 ).order(1);  //后执行的拦截器
         //token刷新的拦截器
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0); //用来拦截所有请求,并且先执行

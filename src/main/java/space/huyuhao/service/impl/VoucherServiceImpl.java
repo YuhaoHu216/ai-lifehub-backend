@@ -2,6 +2,7 @@ package space.huyuhao.service.impl;
 
 
 import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,14 @@ import static space.huyuhao.constant.RedisConstants.SECKILL_STOCK_KEY;
  * @since 2025-10-11
  */
 @Service
+@RequiredArgsConstructor
 public class VoucherServiceImpl implements VoucherService {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
-    private VoucherMapper voucherMapper;
+    private final StringRedisTemplate stringRedisTemplate;
+
+
+    private final VoucherMapper voucherMapper;
 
     /**
      * 查询店铺优惠卷列表

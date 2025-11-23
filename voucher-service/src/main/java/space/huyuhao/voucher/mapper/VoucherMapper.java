@@ -2,6 +2,7 @@ package space.huyuhao.voucher.mapper;
 
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import space.huyuhao.voucher.po.SeckillVoucher;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author hyh
  * @since 2025-10-11
  */
+@Mapper
 public interface VoucherMapper {
 
     // 查询店铺优惠卷列表
